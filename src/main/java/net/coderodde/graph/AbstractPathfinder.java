@@ -19,10 +19,10 @@ public abstract class AbstractPathfinder {
 
     public static final class HeapEntry implements Comparable<HeapEntry> {
 
-        private final int nodeId;
+        private final Integer nodeId;
         private final double distance; // The priority key.
 
-        public HeapEntry(int nodeId, double distance) {
+        public HeapEntry(Integer nodeId, double distance) {
             this.nodeId = nodeId;
             this.distance = distance;
         }

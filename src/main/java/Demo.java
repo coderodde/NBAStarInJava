@@ -8,6 +8,7 @@ import net.coderodde.graph.pathfinding.AbstractPathfinder;
 import net.coderodde.graph.pathfinding.DirectedGraphNodeCoordinates;
 import net.coderodde.graph.pathfinding.HeuristicFunction;
 import net.coderodde.graph.pathfinding.support.AStarPathfinder;
+import net.coderodde.graph.pathfinding.support.BidirectionalDijkstraPathfinder;
 import net.coderodde.graph.pathfinding.support.DijkstraPathfinder;
 import net.coderodde.graph.pathfinding.support.EuclideanHeuristicFunction;
 import net.coderodde.graph.pathfinding.support.NBAStarPathfinder;
@@ -52,7 +53,10 @@ public class Demo {
         AbstractPathfinder finder2 = new DijkstraPathfinder(graph,
                                                             weightFunction);
 
-        AbstractPathfinder finder3 = new NBAStarPathfinder(graph, 
+        AbstractPathfinder finder3 = 
+                new BidirectionalDijkstraPathfinder(graph, weightFunction);
+        
+        AbstractPathfinder finder4 = new NBAStarPathfinder(graph, 
                                                            weightFunction,
                                                            hf);
         start = System.currentTimeMillis();
@@ -76,12 +80,28 @@ public class Demo {
         List<Integer> path3 = finder3.search(sourceNodeId, targetNodeId);
         end = System.currentTimeMillis();
 
-        System.out.println("NBA* in " + (end - start) + " milliseconds.");
+        System.out.println("Bidirectional Dijksstra in " 
+                + (end - start)
+                + " milliseconds.");
+        
         path3.forEach(System.out::println);
+        System.out.println();
+        
+        start = System.currentTimeMillis();
+        List<Integer> path4 = finder4.search(sourceNodeId, targetNodeId);
+        end = System.currentTimeMillis();
+
+        System.out.println("NBA* in " 
+                + (end - start)
+                + " milliseconds.");
+        
+        path4.forEach(System.out::println);
         System.out.println();
 
         System.out.println("Algorithms agree: " +
-                (path1.equals(path2) && path1.equals(path3)));
+                (path1.equals(path2) 
+                        && path1.equals(path3)
+                        && path1.equals(path4)));
     }
 
     private static DirectedGraph getRandomGraph(int nodes, 
