@@ -17,6 +17,9 @@ public class Demo {
 
     private static final int NODES = 100_000;
     private static final int ARCS = 500_000;
+    
+    private static final int GRAPHIC_DEMO_NODES = 100;
+    private static final int GRAPHIC_DEMO_ARCS = 400;
 
     public static void main(String[] args) {
         long seed = System.nanoTime();
