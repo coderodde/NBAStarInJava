@@ -40,6 +40,7 @@ public final class RandomThunderboltPathfinder extends AbstractPathfinder {
         Random random = new Random();
         Integer currentNodeId = sourceNodeId;
         List<Integer> path = new ArrayList<>();
+        path.add(sourceNodeId);
         
         while (!currentNodeId.equals(targetNodeId)) {
             currentNodeId = 
@@ -58,7 +59,7 @@ public final class RandomThunderboltPathfinder extends AbstractPathfinder {
             }
         }
         
-        return tracebackPath(targetNodeId, parentMap);
+        return path;
     }
     
     private Integer 
