@@ -2,6 +2,8 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import javafx.application.Application;
+import javafx.stage.Stage;
 import net.coderodde.graph.DirectedGraph;
 import net.coderodde.graph.DirectedGraphWeightFunction;
 import net.coderodde.graph.pathfinding.AbstractPathfinder;
@@ -14,16 +16,20 @@ import net.coderodde.graph.pathfinding.support.EuclideanHeuristicFunction;
 import net.coderodde.graph.pathfinding.support.NBAStarPathfinder;
 import net.coderodde.graph.pathfinding.support.RandomThunderboltPathfinder;
 
-public class Demo {
+public final class Demo extends Application {
 
-    private static final int NODES = 100;
-    private static final int ARCS = 450;
+    private static final int NODES = 6;
+    private static final int ARCS = 15;
     
-    private static final int GRAPHIC_DEMO_NODES = 100;
-    private static final int GRAPHIC_DEMO_ARCS = 400;
-
+    private static final int GRAPHIC_DEMO_NODES = 10000;
+    private static final int GRAPHIC_DEMO_ARCS  = 50000;
+    
     public static void main(String[] args) {
-        long seed = System.nanoTime();
+        commandLineDemo();
+    }
+
+    public static void commandLineDemo() {
+        long seed = 81607609830700L; //System.nanoTime();
         Random random = new Random(seed);
         System.out.println("Seed = " + seed);
 
@@ -87,7 +93,7 @@ public class Demo {
         List<Integer> path3 = finder3.search(sourceNodeId, targetNodeId);
         end = System.currentTimeMillis();
 
-        System.out.println("Bidirectional Dijksstra in " 
+        System.out.println("Bidirectional Dijkstra in " 
                 + (end - start)
                 + " milliseconds.");
         
@@ -110,8 +116,12 @@ public class Demo {
                 + (end - start)
                 + " milliseconds.");
         
-        path5.forEach(System.out::println);
-        System.out.println();
+        if (path5 == null) {
+            System.out.println("Thunderbolt did not find a path.");
+        } else {
+            path5.forEach(System.out::println);
+            System.out.println();
+        }
         
         boolean algorithmsAgree =
                 path1.equals(path2) 
@@ -211,5 +221,10 @@ public class Demo {
 
     private static <T> T choose(List<T> list, Random random) {
         return list.get(random.nextInt(list.size()));
+    }
+    
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        
     }
 }

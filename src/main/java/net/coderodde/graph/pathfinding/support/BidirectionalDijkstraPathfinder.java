@@ -1,5 +1,6 @@
 package net.coderodde.graph.pathfinding.support;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,6 +24,12 @@ public class BidirectionalDijkstraPathfinder extends AbstractPathfinder {
 
     @Override
     public List<Integer> search(int sourceNodeId, int targetNodeId) {
+        if (sourceNodeId == targetNodeId) {
+            List<Integer> path = new ArrayList<>(1);
+            path.add(sourceNodeId);
+            return path;
+        }
+        
         Queue<HeapEntry> openForward  = new PriorityQueue<>();
         Queue<HeapEntry> openBackward = new PriorityQueue<>();
         Set<Integer> closedForward   = new HashSet<>();

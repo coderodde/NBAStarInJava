@@ -1,11 +1,9 @@
 package net.coderodde.graph.pathfinding.support;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Random;
 import java.util.Set;
 import net.coderodde.graph.DirectedGraph;
 import net.coderodde.graph.pathfinding.AbstractPathfinder;
@@ -19,8 +17,6 @@ import net.coderodde.graph.pathfinding.HeuristicFunction;
  * @since 1.6 (Apr 7, 2022)
  */
 public final class RandomThunderboltPathfinder extends AbstractPathfinder {
-
-    private static final double MAXIMUM_HEURISTIC_ESTIMATE_FACTOR = 1.15;
     
     private final HeuristicFunction heuristicFunction;
     private final DirectedGraph graph;
@@ -36,27 +32,38 @@ public final class RandomThunderboltPathfinder extends AbstractPathfinder {
     
     @Override
     public List<Integer> search(int sourceNodeId, int targetNodeId) {
-        Map<Integer, Integer> parentMap = new HashMap<>();
-        Random random = new Random();
         Integer currentNodeId = sourceNodeId;
+        
+        Set<Integer> settledNodes = new HashSet<>();
         List<Integer> path = new ArrayList<>();
+        
         path.add(sourceNodeId);
+        settledNodes.add(sourceNodeId);
         
         while (!currentNodeId.equals(targetNodeId)) {
-            currentNodeId = 
+            Integer nextNodeId = 
                     step(currentNodeId,
                          targetNodeId,
-                         random);
+                         settledNodes);
             
-            if (currentNodeId != null) {
-                path.add(currentNodeId);
-            } else {
-                if (path.isEmpty()) {
+            if (nextNodeId == null) {
+                currentNodeId = path.remove(path.size() - 1);
+                
+                if (currentNodeId.equals(sourceNodeId)) {
                     return null;
                 }
                 
-                currentNodeId = path.remove(path.size() - 1);
+                settledNodes.remove(currentNodeId);
+                continue;
             }
+            
+            if (settledNodes.contains(nextNodeId)) {
+                continue;
+            }
+            
+            settledNodes.add(nextNodeId);
+            path.add(nextNodeId);
+            currentNodeId = nextNodeId;
         }
         
         return path;
@@ -64,8 +71,8 @@ public final class RandomThunderboltPathfinder extends AbstractPathfinder {
     
     private Integer 
         step(Integer currentNodeId, 
-             Integer targetNodeId, 
-             Random random) {
+             Integer targetNodeId,
+             Set<Integer> settledNodes) {
             
         Set<Integer> children = graph.getChildrenOf(currentNodeId);
         
@@ -74,48 +81,33 @@ public final class RandomThunderboltPathfinder extends AbstractPathfinder {
             return null;
         }
         
-        double maximumHeuristicEstimate = 
-                computeMaximumHeuristicEstimate(children, targetNodeId);
-        
-        maximumHeuristicEstimate *= MAXIMUM_HEURISTIC_ESTIMATE_FACTOR;
-        
-        ProbabilityDistribution distribution =
-                new ProbabilityDistribution(random);
-        
-        for (Integer childNodeId : children) {
-            double currentHeuristicEstimate = 
-                    heuristicFunction
-                            .estimateDistanceBetween(
-                                    childNodeId, 
-                                    targetNodeId);
-            
-            double distributionWeight = 
-                    maximumHeuristicEstimate - currentHeuristicEstimate;
-            
-            distribution.addElement(childNodeId, distributionWeight);
-        }
-        
-        return distribution.sampleElement();
+        return getMinimizingNode(children, settledNodes, targetNodeId);
     }
-    
-    private double
-        computeMaximumHeuristicEstimate(
-                Set<Integer> children, 
+        
+    private Integer 
+        getMinimizingNode(
+                Set<Integer> children,
+                Set<Integer> settledNodes,
                 Integer targetNodeId) {
-            
-        double maximumHeuristicEstimate = Double.NEGATIVE_INFINITY;
+        double minimizingCost = Double.POSITIVE_INFINITY;
+        Integer minimizingNodeId = null;
         
         for (Integer childNodeId : children) {
-            double tentativeHeuristicEstimate = 
+            if (settledNodes.contains(childNodeId)) {
+                continue;
+            }
+            
+            double tentativeCost = 
                     heuristicFunction.estimateDistanceBetween(
                             childNodeId, 
                             targetNodeId);
             
-            maximumHeuristicEstimate = 
-                    Math.max(maximumHeuristicEstimate, 
-                             tentativeHeuristicEstimate);
+            if (minimizingCost > tentativeCost) {
+                minimizingCost = tentativeCost;
+                minimizingNodeId = childNodeId;
+            }
         }
         
-        return maximumHeuristicEstimate;
+        return minimizingNodeId;
     }
 }
