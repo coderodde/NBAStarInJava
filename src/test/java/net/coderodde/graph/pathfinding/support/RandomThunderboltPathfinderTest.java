@@ -61,9 +61,9 @@ public class RandomThunderboltPathfinderTest {
                         graph1, 
                         heuristicFunction);
         
-        List<Integer> nullPath = pathfinder.search(0, 4);
+        List<Integer> emptyPath = pathfinder.search(0, 4);
         
-        assertNull(nullPath);
+        assertTrue(emptyPath.isEmpty());
         
         pathfinder = 
                 new RandomThunderboltPathfinder(

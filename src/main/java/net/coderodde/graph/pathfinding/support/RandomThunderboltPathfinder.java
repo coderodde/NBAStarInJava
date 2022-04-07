@@ -1,6 +1,7 @@
 package net.coderodde.graph.pathfinding.support;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -47,13 +48,13 @@ public final class RandomThunderboltPathfinder extends AbstractPathfinder {
                          settledNodes);
             
             if (nextNodeId == null) {
-                currentNodeId = path.remove(path.size() - 1);
+                path.remove(path.size() - 1);
                 
-                if (currentNodeId.equals(sourceNodeId)) {
-                    return null;
+                if (path.isEmpty()) {
+                    return Collections.<Integer>emptyList();
                 }
                 
-                settledNodes.remove(currentNodeId);
+                currentNodeId = path.get(path.size() - 1);
                 continue;
             }
             
@@ -76,7 +77,7 @@ public final class RandomThunderboltPathfinder extends AbstractPathfinder {
             
         Set<Integer> children = graph.getChildrenOf(currentNodeId);
         
-        if (children.isEmpty()) {
+        if (children == null || children.isEmpty()) {
             // Should not happen but is possible.
             return null;
         }
