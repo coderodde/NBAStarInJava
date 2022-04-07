@@ -12,11 +12,12 @@ import net.coderodde.graph.pathfinding.support.BidirectionalDijkstraPathfinder;
 import net.coderodde.graph.pathfinding.support.DijkstraPathfinder;
 import net.coderodde.graph.pathfinding.support.EuclideanHeuristicFunction;
 import net.coderodde.graph.pathfinding.support.NBAStarPathfinder;
+import net.coderodde.graph.pathfinding.support.RandomThunderboltPathfinder;
 
 public class Demo {
 
-    private static final int NODES = 100_000;
-    private static final int ARCS = 500_000;
+    private static final int NODES = 100;
+    private static final int ARCS = 450;
     
     private static final int GRAPHIC_DEMO_NODES = 100;
     private static final int GRAPHIC_DEMO_ARCS = 400;
@@ -62,6 +63,9 @@ public class Demo {
         AbstractPathfinder finder4 = new NBAStarPathfinder(graph, 
                                                            weightFunction,
                                                            hf);
+        
+        AbstractPathfinder finder5 = new RandomThunderboltPathfinder(graph, hf);
+        
         start = System.currentTimeMillis();
         List<Integer> path1 = finder1.search(sourceNodeId, targetNodeId);
         end = System.currentTimeMillis();
@@ -98,13 +102,40 @@ public class Demo {
                 + (end - start)
                 + " milliseconds.");
         
-        path4.forEach(System.out::println);
-        System.out.println();
+        start = System.currentTimeMillis();
+        List<Integer> path5 = finder5.search(sourceNodeId, targetNodeId);
+        end = System.currentTimeMillis();
 
-        System.out.println("Algorithms agree: " +
-                (path1.equals(path2) 
-                        && path1.equals(path3)
-                        && path1.equals(path4)));
+        System.out.println("Random Thunderbolt in " 
+                + (end - start)
+                + " milliseconds.");
+        
+        path5.forEach(System.out::println);
+        System.out.println();
+        
+        boolean algorithmsAgree =
+                path1.equals(path2) 
+             && path1.equals(path3)
+             && path1.equals(path4);
+
+        System.out.println("Algorithms agree: " + algorithmsAgree);
+        
+        if (!algorithmsAgree) {
+            System.out.println("Exiting...");
+            return;
+        }
+        
+        double optimalPathLength = getPathLength(path1, weightFunction);
+        
+        System.out.println("Optimal path length: " + optimalPathLength);
+        
+        double thunderboltPathLength = getPathLength(path5, weightFunction);
+        
+        System.out.println("Thunderbolt path length: " + thunderboltPathLength);
+        
+        double pathLengthRatio = thunderboltPathLength / optimalPathLength;
+        
+        System.out.println("Path length ratio: " + pathLengthRatio);
     }
 
     private static DirectedGraph getRandomGraph(int nodes, 
@@ -125,6 +156,19 @@ public class Demo {
         }
 
         return graph;
+    }
+    
+    private static double 
+        getPathLength(
+                List<Integer> path, 
+                DirectedGraphWeightFunction weightFunction) {
+        double pathLength = 0.0;
+        
+        for (int i = 0; i < path.size() - 1; ++i) {
+            pathLength += weightFunction.get(path.get(i), path.get(i + 1)); 
+        }
+        
+        return pathLength;
     }
 
     private static DirectedGraphNodeCoordinates 
